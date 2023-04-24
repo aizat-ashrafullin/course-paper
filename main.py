@@ -12,8 +12,7 @@ def dump_to_yadisk(ya_token, photo_url, photo_name):
             'path': f'Загрузки/{photo_name}',
             'url': photo_url}
     response = requests.post(upload_url, headers=headers, params=params)
-    if response.status_code == 202:
-        print(f'Файл {photo_name} загружен')
+    print(response.status_code)
 
 def put_vk_photos_in_yadisk(owner_id, ya_token):
     with open('token.txt', 'r') as file_obj:
