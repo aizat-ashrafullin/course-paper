@@ -1,7 +1,14 @@
 import requests
-import vk, os, math, time
-from pprint import pprint
 
+def new_folder(ya_token):
+    params = {'path': 'Фотографии с вк'}
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'OAuth {}'.format(ya_token)
+    }
+    r = requests.put('https://cloud-api.yandex.net/v1/disk/resources', headers=headers, params=params)
+    if r.status_code == 201:
+        print('Папка "Фотографии с вк" создана!')
 def dump_to_yadisk(ya_token, photo_url, photo_name):
     upload_url = 'https://cloud-api.yandex.net/v1/disk/resources/upload'
     headers = {
@@ -9,19 +16,22 @@ def dump_to_yadisk(ya_token, photo_url, photo_name):
             'Authorization': 'OAuth {}'.format(ya_token)
         }
     params = {
-            'path': f'Загрузки/{photo_name}',
+            'path': f'Фотографии с вк/{photo_name}',
             'url': photo_url}
     response = requests.post(upload_url, headers=headers, params=params)
-    print(response.status_code)
+    if response.status_code == 202:
+        print('Фотография загружена')
+
 
 def put_vk_photos_in_yadisk(owner_id, ya_token):
+    new_folder(ya_token)
     with open('token.txt', 'r') as file_obj:
         token = file_obj.read().strip()
     params = {
         'access_token': token,
         'v': '5.131',
         'owner_id': owner_id,
-        'album_id': 'profile',
+        'album_id': '292866854',
         'extended': '1',
         'photo_sizes': '1',
     }
@@ -52,6 +62,9 @@ def put_vk_photos_in_yadisk(owner_id, ya_token):
 
         with open('vk-photos-data.json', 'w') as data_load:
             data_load.write(str(results))
-        print(results)
 
-put_vk_photos_in_yadisk('795502811', 'y0_AgAAAAAXx97qAADLWwAAAADgH--KGSdWObIcTimzTI9XGF2ORU5emqo')
+
+if __name__ == '__main__':
+    yadisk_token = ''
+    vk_id = ''
+    put_vk_photos_in_yadisk(vk_id, yadisk_token)
