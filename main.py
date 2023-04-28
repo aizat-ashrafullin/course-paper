@@ -1,4 +1,6 @@
 import requests
+import time
+from tqdm import tqdm
 
 def new_folder(ya_token):
     params = {'path': 'Фотографии с вк'}
@@ -17,12 +19,11 @@ def dump_to_yadisk(ya_token, photo_url, photo_name):
         }
     params = {
             'path': f'Фотографии с вк/{photo_name}',
-            'url': photo_url}
+            'url': photo_url
+        }
     response = requests.post(upload_url, headers=headers, params=params)
     if response.status_code == 202:
         print('Фотография загружена')
-
-
 def put_vk_photos_in_yadisk(owner_id, ya_token):
     new_folder(ya_token)
     with open('token.txt', 'r') as file_obj:
@@ -38,7 +39,7 @@ def put_vk_photos_in_yadisk(owner_id, ya_token):
     r = requests.get('https://api.vk.com/method/photos.get', params=params)
     results = []
     list_likes = []
-    for item in r.json()['response']['items']:
+    for item in tqdm(r.json()['response']['items']):
         height_photo = 0
         photo_url = ''
         type_photo = ''
@@ -47,9 +48,8 @@ def put_vk_photos_in_yadisk(owner_id, ya_token):
                 height_photo = size['height']
                 photo_url = size['url']
                 type_photo = size['type']
-
-        likes = str(item["likes"]["user_likes"])
-        date = str(item["date"])
+        likes = item["likes"]["user_likes"]
+        date = item["date"]
 
         if not likes in list_likes:
             results.append({'filename': f'{likes}.png', 'size': type_photo})
@@ -59,12 +59,12 @@ def put_vk_photos_in_yadisk(owner_id, ya_token):
             dump_to_yadisk(ya_token, photo_url, f'{date}.png')
 
         list_likes.append(likes)
-
         with open('vk-photos-data.json', 'w') as data_load:
             data_load.write(str(results))
+        time.sleep(1)
 
 
 if __name__ == '__main__':
-    yadisk_token = ''
-    vk_id = ''
+    yadisk_token = 'y0_AgAAAAAXx97qAADLWwAAAADgH--KGSdWObIcTimzTI9XGF2ORU5emqo'
+    vk_id = '795502811'
     put_vk_photos_in_yadisk(vk_id, yadisk_token)
